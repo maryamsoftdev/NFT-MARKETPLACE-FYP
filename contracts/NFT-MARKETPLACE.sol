@@ -85,13 +85,62 @@ function createMarketItem(uint256 tokenId, uint256 price) private{
 require(price > 0, "Price must be at least 1 wei");
 require(msg.value == listingPrice, "price must be equal to listing price");
 idMarketItem[tokenId] = MarketItem(
+ tokenId,
+ payable(msg.sender),
+ payable(address(this)),
+ price,
+ false
+//NFT AND MONEY BELONG TO THE CONTRACT ITSELF
 
-
-    
-)
+);
+_transfer(msg.sender, address(this), tokenId);
+emit idMarketItemCreated(
+    tokenId,
+    msg.sender,  
+    address(this),
+    price,
+    false
+        );
 }
 
 //PRIVATE BECUSE WE ARE CALLING IT INTERNALLY NOT EXTERNALLY
 
+function reSellToken(uint256 tokenId, uint256 price) public payable{
+ require(idMarketItem[tokenId].owner == msg.sender, "Only item owner can perform this operation");
+//CHECKING IdMarketItem 
+//IF BOTH ADDRESSES MATCHES THEN WE WILL CONTINUE WORKING FURTHURE AND MAKE THE RESALE HAPPEN
+require(msg.value == listingPrice, "Price must be equal to listing price");
 
+idMarketItem[tokenId].sold = false;
+idMarketItem[tokenId].price = price;
+idMarketItem[tokenId].seller = payable(msg.sender);
+idMarketItem[tokenId].owner = payable(address(this));
+
+_itemsSold.decrement();
+_transfer(msg.sender, address(this), tokenId);
+}
+//FUNCTION FOR RESALE TOKEN
+
+function createMarketSale(uint256 tokenId) public{
+    uint256 price = idMarketItem[tokenId].price;
+    //PRICE IS COMING FROM STRUCTURE
+    require(
+        msg.value == price,
+     "Please submit the asking price in oreder to complete the procedure"
+     );
+
+     idMarketItem[tokenId].owner = payable(msg.sender);
+     idMarketItem[tokenId].sold = true;
+     idMarketItem[tokenId].owner = payable(address(0));
+//WHO EVER WILL PAY BECOME THE OWNER OF THE NFT
+//JUST UPDATING THE DATA AND TRANSFERERING ON ADDRESS TO THE OTHER
+      _itemsSold.increment();
+      
+      _transfer(address(this), msg.sender, tokenId);
+//WHEN SOMEONE BUY THE NFT TOKEN THEY WILL BUY FROM CONTRACT
+      payable(owner).transfer(listingPrice);
+//WHEN EVER ANY SALE WILL HAPPEN WE WILL GET OUR COMMISIION
+}
+
+//FUNTION CREATE MARKETSALE
 }
