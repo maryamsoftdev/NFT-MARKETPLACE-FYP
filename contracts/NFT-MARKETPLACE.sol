@@ -139,8 +139,25 @@ function createMarketSale(uint256 tokenId) public{
       _transfer(address(this), msg.sender, tokenId);
 //WHEN SOMEONE BUY THE NFT TOKEN THEY WILL BUY FROM CONTRACT
       payable(owner).transfer(listingPrice);
+      payable(idMarketItem[tokenId].seller).transfer(msg.value);
 //WHEN EVER ANY SALE WILL HAPPEN WE WILL GET OUR COMMISIION
 }
-
 //FUNTION CREATE MARKETSALE
+function fetchMarketItem() public view returns(MarketItem[] memory){
+    uint256 itemCount = _tokenIds.current();
+    uint256 unSoldItemCount = _tokenIds.current(); - _itemsSold.current();
+//WE WILL GET UNSOLD ITEM BY OBVE FUNCTION
+    uint256 currentIndex = 0;
+    MarketItem[] memory items = new MarketItem[](unSoldItemCount){
+        for(uint256 i =0; i < itemCount; i++ ){
+            if(idMarketItem{i+1}.owner == address(this)){
+                
+            }
+        }
+        
+    }
+//NEW IS THE KEYWORD IN SOLIDITY
+}
+
+//GETTING UNSOLD NFT DATA
 }
